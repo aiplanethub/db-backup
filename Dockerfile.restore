@@ -1,0 +1,23 @@
+FROM ubuntu:20.04
+
+RUN apt-get update && apt-get install -y \
+    curl \
+    ca-certificates \
+    gnupg \
+    wget \
+    python3-pip \
+    postgresql-client
+
+# Add PostgreSQL repository
+RUN sh -c 'echo "deb http://apt.postgresql.org/pub/repos/apt focal-pgdg main" > /etc/apt/sources.list.d/pgdg.list' && \
+    wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add -
+
+# Install AWS CLI
+RUN pip3 install awscli
+
+# Copy restore script into the container
+COPY scripts/restore.sh /usr/local/bin/restore.sh
+RUN chmod +x /usr/local/bin/restore.sh
+
+# Set the entrypoint to the restore script
+ENTRYPOINT ["/usr/local/bin/restore.sh"]
